@@ -1,0 +1,87 @@
+# Portfolio Optimization Configuration - OPTIMIZED VERSION
+# Updated per user specifications
+
+# Data paths
+data:
+  excel_file: "data/raw/Book1__1_.xlsx"
+  clean_data_sheet: "Clean Data"
+  stock_data_sheet: "Stock Data"
+  output_dir: "outputs/results"
+  plots_dir: "outputs/plots"
+  logs_dir: "outputs/logs"
+
+# Simulation parameters - OPTIMIZED
+simulation:
+  num_simulations: 10000        # 10,000 simulations per replication
+  num_replications: 20          # 20 replications = 200,000 total paths
+  time_horizon_days: 252        # Trading days (1 year)
+  use_sobol: true              # Use Sobol sequences for quasi-Monte Carlo
+  seed: 42                     # Random seed for reproducibility
+  parallel: false              # Single-threaded to avoid memory issues
+  num_cores: 1                 # Use single core
+  validate_dates: true         # Check date alignment before simulation
+
+# Market parameters
+market:
+  risk_free_rate: 0.07         # Annual risk-free rate (7%)
+  trading_days_per_year: 252
+
+# GBM parameters
+gbm:
+  estimation_window: 252       # Days to use for parameter estimation
+  include_external_factors: true
+  correlation_threshold: 0.2   # Lowered to include more factors
+  use_factor_regression: true  # Use factor model with external indicators
+
+# External factors (indicators) - Will be used in factor model
+external_factors:
+  - NIFTY50_Returns           # Market benchmark
+  - SP500_Returns             # Global market indicator
+  - USDINR_Returns            # Currency risk
+  - Brent_Crude_Returns       # Commodity/energy exposure
+  - FII_Net_Investment        # Foreign institutional flows
+  - DII_Net_Investment        # Domestic institutional flows
+  - India_10Y_Yield_Returns   # Interest rate risk
+  - India_VIX                 # Volatility index
+  - US_Dollar_Index_Returns   # Global currency strength
+
+# Random events (RBI repo rate)
+events:
+  include_repo_rate_events: true
+  event_impact_method: "shock"  # Apply as discrete shocks
+  repo_rate_column: "RBI_Repo_Rate"
+  repo_change_column: "RBI_Repo_Change"
+  estimate_sensitivity: true   # Estimate stock sensitivity to repo rate changes
+
+# VaR calculation
+var:
+  confidence_levels: [0.90, 0.95, 0.99]
+  method: "historical"         # "historical", "parametric", or "monte_carlo"
+
+# Portfolio optimization
+optimization:
+  method: "mean_variance"      # "mean_variance", "min_variance", "max_sharpe"
+  constraints:
+    min_weight: 0.0           # Minimum weight per asset (0 = no shorting)
+    max_weight: 0.4           # Maximum weight per asset
+    sum_weights: 1.0          # Weights must sum to 1
+  target_return: null         # null for efficient frontier, or specific value
+  num_frontier_points: 40     # Points on efficient frontier
+
+# Logging
+logging:
+  level: "INFO"               # DEBUG, INFO, WARNING, ERROR
+  log_to_file: true
+  log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Visualization - ENHANCED per user request
+plotting:
+  style: "seaborn-v0_8"
+  figsize: [12, 8]
+  dpi: 300
+  save_format: "png"
+  show_plots: false           # Set to true for interactive mode
+  plot_individual_stocks: true  # Plot simulation for each stock
+  plot_portfolio_evolution: true  # Plot optimized portfolio over time
+  max_paths_to_plot: 100      # Max simulation paths to show on plots
+  include_all_stocks: true    # Generate plots for every stock in portfolio
